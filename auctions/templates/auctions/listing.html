@@ -1,0 +1,100 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}
+    {{listing.title}}
+{% endblock %}
+
+{% block body %}
+
+    <div class="card mb-3">
+        <h5 class="card-title">{{listing.title}}</h5>
+        {% if listing.creator == user and listing.flActive %}
+        <a class="btn btn-outline-info" href="{% url 'close_listing' listing.id %}" role="button">Close</a>
+        {% endif %}
+
+        <a href="{% url 'toggle_watchlist' listing.id 'listing' %}">
+            {% if listing.is_watched == True%}
+                Remove from my Watch List
+            {% else %}
+                Add to my Watch List
+            {% endif %}
+        </a>
+
+        <div class="card-body">
+            <img src="{{listing.image}}" class="card-img-top" alt="{{listing.title}}" style="width: 300px;">
+        <p class="card-text">{{listing.description}}</p>
+        <p class="card-text"> <strong>Starting Price: ${{listing.start_bid}}</strong> </p>
+        <p class="card-text">
+            {% if listing.current_bid is None %}
+                {% if listing.creator != user %}
+                    Make the first bid now!
+                {% else %}
+                {% endif %}
+            {% elif listing.buyer is not None %}
+                {% if listing.creator == user %}
+                    You've sold this item to {{listing.buyer}} for ${{listing.current_bid}}
+                {% elif listing.buyer == user %}
+                    You have won the auction for this listing!
+                {% else %}
+                    This item has been to sold!
+                {% endif %}
+            {% else %}
+            <p class="card-text"> <strong>Current Bid: ${{listing.current_bid}}</strong> </p>
+            {% endif %}
+
+
+        </p>
+
+       
+        {% if error_bid %}
+        <p class="card-text">
+            {% if listing.current_bid %}
+                <div class="alert alert-warning" role="alert">Your bid must be bigger than {{ listing.current_bid|default:listing.start_bid }}</div>
+            {% else %}
+                <div class="alert alert-warning" role="alert">Your bid must be equal or bigger than {{ listing.current_bid|default:listing.start_bid }}</div>
+            {% endif %}
+        </p>
+    {% endif %}
+
+        {% if listing.flActive and listing.creator != user %}
+        <div class="form-group">
+            <form action="{% url 'take_bid' listing.id %}" method="post">
+                {% csrf_token %}
+                {{ bidform }}        
+                <input type = 'submit' value="Bid on it!">
+            </form>                    
+        </div>            
+    {% endif %}
+
+    </div>
+    </div>
+
+    <div class="card mb-3">
+        <br> <h3>Comments</h3>
+
+        {% if listing.flActive %}
+        <div class="form-group">
+            <form action="{% url 'comment' listing.id %}" method="post">
+                {% csrf_token %}
+                {{ commentform }}        
+                <input type = 'submit' value="Comment">
+            </form>                    
+        </div>            
+    {% endif %}
+
+
+        {%  for comment in comments %}
+        
+        <div class="card-header">{{ comment.user|default:"Unknown auctor" }} commented on {{ comment.createdDate|date:"M, d"  }}</div>
+        <div class="card-body">
+            <h5 class="card-title"> {{ comment.comment }}</h5>                        
+        </div>
+        {% endfor %}
+    </div>
+
+<div class="card mb-3">
+    <h3>Details</h3>
+    Created by: {{listing.creator.username}}
+    <p><small class=""> Created {{listing.datetime}}</small></p>
+</div>
+{% endblock %}

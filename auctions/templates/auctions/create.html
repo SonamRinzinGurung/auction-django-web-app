@@ -1,0 +1,39 @@
+{% extends "auctions/layout.html" %}
+
+    {% block title %}
+        Create Listing
+    {% endblock %}
+
+
+    {% block body %}
+    <h3>Create New Listing</h3>
+    {% if success %}
+        <div class="alert alert-success">
+            Listing created successfully.
+        </div>
+    {% endif %}
+    <form action="{% url 'create' %}" method="post" >
+                {% csrf_token %}
+                <div class="mb-3">
+                  <label for="title" class="form-label">Title</label>
+                  <span class="form-control">{{form.title}}</span>
+                </div>
+                <div class="mb-3">
+                  <label for="description" class="form-label">Description</label><br>
+                 {{form.description}}
+                 <br>
+                <label for="bid" class="form-label">Start Bid</label>
+                <span class="form-control">{{form.start_bid}}</span>
+              </div>
+              <label for="category" class="form-label">Category</label>
+              <span class="form-control">{{form.category}}</span>
+            </div>
+            <label for="image" class="form-label">Image URL</label>
+            <span class="form-control">{{form.image}}</span>
+        </div><br>
+              
+                <button type="submit" class="btn btn-primary">Create Listing</button>
+              </form>
+            
+
+    {% endblock %}
